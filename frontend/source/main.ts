@@ -14,8 +14,9 @@ const context = canvas.getContext("2d")!;
 
 const render = (gameState: GameState) => {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  gameState.coordinate.forEach((coordinate)=> context.fillRect(coordinate[0], coordinate[1], 100, 100))
-
+  gameState.coordinate.forEach((coordinate) =>
+    context.fillRect(coordinate[0], coordinate[1], 100, 100)
+  );
 };
 
 canvas.addEventListener("mousedown", (event: MouseEvent) => {

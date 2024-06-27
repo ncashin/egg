@@ -1,5 +1,5 @@
 import type { ServerWebSocket } from "bun";
-import { initialGameState, GameState, update } from "../game";
+import { initialGameState, update, type GameState } from "../game";
 
 type Connection = {
   id: number;
@@ -34,18 +34,14 @@ Bun.serve({
   },
 });
 
-console.log("HELLO WORLD");
 
 const TICK_RATE = 16.666;
-
 let gameState: GameState = initialGameState;
 let previousTime = 0;
 const loop = () => {
-  console.log("TICK RATE TEST: ", TICK_RATE);
   update(gameState, TICK_RATE);
   for (var connection of connectedSockets) {
     connection.socket.send(JSON.stringify(gameState));
   }
-  setTimeout(loop, TICK_RATE);
 };
-setTimeout(loop, TICK_RATE);
+setInterval(loop, TICK_RATE);
