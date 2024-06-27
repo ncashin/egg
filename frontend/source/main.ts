@@ -1,34 +1,27 @@
-import { executeFrame, GameState } from "./game";
+import { update, GameState } from "./game";
 
-const SERVER_IP = "http://localhost:8080/ws";
-const socket = new WebSocket(SERVER_IP);
-socket.addEventListener("message", (event) => {});
+let gameState: GameState = {};
+const WEBSOCKET_URL = "http://localhost:8080/";
+const socket = new WebSocket(WEBSOCKET_URL);
+socket.addEventListener("message", (event) => {
+  gameState = event.data;
+});
 
 const canvas = document.getElementById("canvas")! as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const context = canvas.getContext("2d")!;
 
-const gameState: GameState;
 const render = (gameState: GameState) => {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  for (let i = 0; i < entities.length; i++) {
-    const entity = entities[i];
-    context.fillRect(entity.x, entity.y, entity.width, entity.height);
-  }
 };
 
-const keymap = {};
-document.addEventListener("keydown", (event: KeyboardEvent) => {
-  keymap[event.code] = true;
-});
-document.addEventListener("keyup", (event: KeyboardEvent) => {
-  keymap[event.code] = false;
-});
-
+let previousTime = 0;
 const renderloop = (time: DOMHighResTimeStamp) => {
-  executeFrame(gameState);
   render(gameState);
+  let deltaTime = time - previousTime;
+  previousTime = time;
+  update(gameState, deltaTime);
 
   window.requestAnimationFrame(renderloop);
 };

@@ -1,9 +1,9 @@
 export type Entity = {
-    
+
 }
 
 export type GameState = {
     
 }
-export const executeFrame = (gameState: GameState) => {
+export const update = (gameState: GameState, deltaTime: number) => {
 };
