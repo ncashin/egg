@@ -1,10 +1,10 @@
-import { update, GameState } from "./game";
+import { GameState, initialGameState, update } from "../../game";
 
-let gameState: GameState = {};
-const WEBSOCKET_URL = "http://localhost:8080/";
+let gameState: GameState = initialGameState;
+const WEBSOCKET_URL = "http://localhost:3000/";
 const socket = new WebSocket(WEBSOCKET_URL);
 socket.addEventListener("message", (event) => {
-  gameState = event.data;
+  gameState = JSON.parse(event.data);
 });
 
 const canvas = document.getElementById("canvas")! as HTMLCanvasElement;
@@ -14,7 +14,13 @@ const context = canvas.getContext("2d")!;
 
 const render = (gameState: GameState) => {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  gameState.coordinate.forEach((coordinate)=> context.fillRect(coordinate[0], coordinate[1], 100, 100))
+
 };
+
+canvas.addEventListener("mousedown", (event: MouseEvent) => {
+  socket.send(event.x + " " + event.y);
+});
 
 let previousTime = 0;
 const renderloop = (time: DOMHighResTimeStamp) => {
