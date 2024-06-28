@@ -1,8 +1,6 @@
 import type { ServerWebSocket } from "bun";
-import EventType, {
-  COYOTE_TIME,
+import {
   initialGameState,
-  intialEntity,
   update,
   type GameState,
 } from "../game";
@@ -28,35 +26,13 @@ Bun.serve<Connection>({
   }, // upgrade logic
   websocket: {
     open(socket) {
-      gameState.entities[socket.data.id] = {...intialEntity};
       connectedSockets.push(socket);
     }, // a socket is opened
     message(socket, message) {
       const socketID = socket.data.id
-      const event = Number(message);
-      switch (event) {
-        case EventType.MOVE_NONE: {
-          gameState.entities[socketID].isMoving = false;
-          break;
-        }
-        case EventType.MOVE_LEFT: {
-          gameState.entities[socketID].isMoving = true;
-          gameState.entities[socketID].isMovingLeft = true;
-          break;
-        }
-        case EventType.MOVE_RIGHT: {
-          gameState.entities[socketID].isMoving = true;
-          gameState.entities[socketID].isMovingLeft = false;
-          break;
-        }
-        case EventType.JUMP: {
-          gameState.entities[socketID].coyoteTime = COYOTE_TIME;
-          break;
-        }
-      }
+      
     }, // a message is received
     close(socket, code, message) {
-      delete gameState.entities[socket.data.id];
     }, // a socket is closed
     drain(socket) {}, // the socket is ready to receive more data
   },

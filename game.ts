@@ -1,59 +1,80 @@
-export const GRAVITY = 2;
-export const COYOTE_TIME = 32.222;
-
-enum EventType {
-  MOVE_NONE = 0,
-  MOVE_LEFT = 1,
-  MOVE_RIGHT = 2,
-  JUMP = 3,
-}
-export default EventType;
-export type Entity = {
-  x: number;
-  y: number;
-  velocityY: number;
-
-  coyoteTime: number;
-  isMoving: boolean;
-  isMovingLeft: boolean;
+type Dictionary<T> = {
+  [key: number]: T;
 };
-export const intialEntity = {
-    x: 0,
-    y: 0,
-    velocityY: 0,
-
-    coyoteTime: 0,
-    isMoving: false,
-    isMovingLeft: false,
+export type Tile = {
+  isLand: boolean;
 };
-type Dictionary<T>  = {
-    [key: number]: T;
-};
-export type GameState = {
-  entities: Dictionary<Entity>;
-};
-
-export const initialGameState: GameState = {
-  entities: {},
-};
-export const update = (gameState: GameState, deltaTime: number) => {
-    for(const key in gameState.entities){
-        var entity = gameState.entities[key];
-        if(entity.isMoving){
-            entity.x += entity.isMovingLeft ? -5 : 5;
+export const GRID_WIDTH = 100;
+export const GRID_HEIGHT = 30;
+export const TILE_SIZE = 20;
+const getSurroundingTiles = (grid: Tile[][], x: number, y: number): Tile[] =>{
+    let tiles: Tile[] = [];
+    if(x + 1 < GRID_WIDTH){
+        tiles.push(grid[x+1][y])
+        if(y + 1 < GRID_HEIGHT){
+            tiles.push(grid[x+1][y+1])
         }
-    
-        entity.y += entity.velocityY;
-        entity.velocityY += GRAVITY;
-        if(entity.y > 400){
-            entity.y = 400;
-            entity.velocityY = 0;
-            if(entity.coyoteTime > 0){
-                entity.velocityY += -20;
-                entity.coyoteTime = 0;
+        if(y - 1 > 0){
+            tiles.push(grid[x+1][y-1])
+        }
+    }
+    if(x - 1 > 0){
+        tiles.push(grid[x-1][y])
+        if(y + 1 < GRID_HEIGHT){
+            tiles.push(grid[x-1][y+1])
+        }
+        if(y - 1 > 0){
+            tiles.push(grid[x-1][y-1])
+        }
+    }
+    if(y + 1 < GRID_HEIGHT){
+        tiles.push(grid[x][y+1])
+    }
+    if(y - 1 > 0){
+        tiles.push(grid[x][y-1])
+    }
+    return tiles;
+}
+export type GameState = {
+  grid: Tile[][];
+};
+const collapseLand = (grid: Tile[][]) =>{
+    for(let x = 0; x < GRID_WIDTH; x++){
+        for(let y = 0; y < GRID_HEIGHT; y++){
+            let surrounding_tiles = getSurroundingTiles(grid, x, y);
+            let obstructed_tile_count = 0;
+            for(var tile of surrounding_tiles){
+                if(tile.isLand == false){
+                    obstructed_tile_count++;
+                }
+            }
+            if(obstructed_tile_count > 4){
+                grid[x][y].isLand = false;
+            } else if(obstructed_tile_count < 4){
+                grid[x][y].isLand = true;
             }
         }
-    
-        entity.coyoteTime -= deltaTime;
     }
+}
+
+const initializeGrid = () => {
+    let grid: Tile[][] = [];
+  for (let x = 0; x < GRID_WIDTH; x++) {
+    grid.push([]);
+    for (let y = 0; y < GRID_HEIGHT; y++) {
+      grid[x].push({isLand: Math.random() > 0.5,});
+    }
+  }
+
+  for(let i = 0; i < 5; i++){
+    collapseLand(grid);
+  }
+  
+  return grid;
+};
+export const initialGameState: GameState = {
+  grid: initializeGrid(),
+};
+export const update = (gameState: GameState, deltaTime: number) => {
+
 };
